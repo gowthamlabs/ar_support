@@ -118,8 +118,11 @@
         return;
       }
 
-      const ratePerMonth = rdInterest / 12 / 100;
-      const total = rdAmount * ((Math.pow(1 + ratePerMonth, rdMonths) - 1) / ratePerMonth) * (1 + ratePerMonth);
+      const n = 12; // Monthly compounding
+      const t = rdMonths / 12; // Tenure in years
+      const r = rdInterest / 100; // Annual interest rate as a fraction
+
+      const total = rdAmount * ((Math.pow(1 + r / n, n * t) - 1) / (1 - Math.pow(1 + r / n, -1)));
       const invested = rdAmount * rdMonths;
       const gain = total - invested;
       const gainPercentage = (gain / invested) * 100;
@@ -138,8 +141,11 @@
         return;
       }
 
-      const ratePerMonth = fdInterest / 12 / 100;
-      const total = fdAmount * Math.pow(1 + ratePerMonth, fdMonths);
+      const n = 12; // Monthly compounding
+      const t = fdMonths / 12; // Tenure in years
+      const r = fdInterest / 100; // Annual interest rate as a fraction
+
+      const total = fdAmount * Math.pow(1 + r / n, n * t);
       const invested = fdAmount * (fdMonths / 12);
       const gain = total - invested;
       const gainPercentage = (gain / invested) * 100;
@@ -160,16 +166,19 @@
         return;
       }
 
-      const ratePerMonthRD = rdInterest / 12 / 100;
-      const ratePerMonthFD = fdInterest / 12 / 100;
-
-      let rdTotal = rdAmount * ((Math.pow(1 + ratePerMonthRD, rdMonths) - 1) / ratePerMonthRD) * (1 + ratePerMonthRD);
+      const rd_n = 12;
+      const rd_r = rdInterest / 100;
+      const rd_t = rdMonths / 12;
       let invested = rdAmount * rdMonths;
+      let rdTotal = rdAmount * ((Math.pow(1 + rd_r / rd_n, rd_n * rd_t) - 1) / (1 - Math.pow(1 + rd_r / rd_n, -1)));
+
+      const fd_n = 12;
+      const fd_r = fdInterest / 100;
       let finalAmount = rdTotal;
 
       for (let i = 0; i < investmentYears; i++) {
-        finalAmount = finalAmount * Math.pow(1 + ratePerMonthFD, 12);
-        rdTotal = rdAmount * ((Math.pow(1 + ratePerMonthRD, rdMonths) - 1) / ratePerMonthRD) * (1 + ratePerMonthRD);
+        finalAmount = finalAmount * Math.pow(1 + fd_r / fd_n, fd_n);
+        rdTotal = rdAmount * ((Math.pow(1 + rd_r / rd_n, rd_n * rd_t) - 1) / (1 - Math.pow(1 + rd_r / rd_n, -1)));
         invested += rdAmount * rdMonths;
         finalAmount += rdTotal;
       }
