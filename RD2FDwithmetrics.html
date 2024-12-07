@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RD and FD Interest Summary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .summary {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-left: 4px solid #4CAF50;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>RD and FD Interest Calculator</h1>
+
+    <h2>Recurring Deposit (RD)</h2>
+    <label for="rdInterest">RD Interest Rate (%)</label>
+    <input type="text" id="rdInterest" placeholder="Enter RD interest rate">
+
+    <label for="rdAmount">Monthly RD Amount</label>
+    <input type="text" id="rdAmount" placeholder="Enter monthly RD amount">
+
+    <label for="rdMonths">RD Duration (in months)</label>
+    <input type="text" id="rdMonths" placeholder="Enter RD duration in months">
+
+    <button onclick="calculateRD()">Calculate RD Summary</button>
+
+    <div class="summary" id="rdSummaryBox" style="display: none;">
+      <p id="rdSummaryText"></p>
+    </div>
+
+    <h2>Fixed Deposit (FD)</h2>
+    <label for="fdInterest">FD Interest Rate (%)</label>
+    <input type="text" id="fdInterest" placeholder="Enter FD interest rate">
+
+    <label for="fdAmount">Annual FD Amount</label>
+    <input type="text" id="fdAmount" placeholder="Enter annual FD amount">
+
+    <label for="fdMonths">FD Duration (in months)</label>
+    <input type="text" id="fdMonths" placeholder="Enter FD duration in months">
+
+    <button onclick="calculateFD()">Calculate FD Summary</button>
+
+    <div class="summary" id="fdSummaryBox" style="display: none;">
+      <p id="fdSummaryText"></p>
+    </div>
+
+    <h2>Combined RD to FD Estimation</h2>
+    <label for="investmentYears">Investment Period (in years)</label>
+    <input type="text" id="investmentYears" placeholder="Enter investment period in years">
+
+    <button onclick="calculateRDToFD()">Calculate Final Sum</button>
+
+    <div class="summary" id="combinedSummaryBox" style="display: none;">
+      <p id="combinedSummaryText"></p>
+    </div>
+  </div>
+
+  <script>
+    function calculateRD() {
+      const rdInterest = parseFloat(document.getElementById('rdInterest').value);
+      const rdAmount = parseFloat(document.getElementById('rdAmount').value);
+      const rdMonths = parseInt(document.getElementById('rdMonths').value);
+
+      if (isNaN(rdInterest) || isNaN(rdAmount) || isNaN(rdMonths)) {
+        alert('Please enter valid numbers for RD details.');
+        return;
+      }
+
+      const ratePerMonth = rdInterest / 12 / 100;
+      const total = rdAmount * ((Math.pow(1 + ratePerMonth, rdMonths) - 1) / ratePerMonth) * (1 + ratePerMonth);
+      const invested = rdAmount * rdMonths;
+      const gain = total - invested;
+      const gainPercentage = (gain / invested) * 100;
+
+      document.getElementById('rdSummaryText').textContent = `Total RD Amount after ${rdMonths} months is: ₹${total.toFixed(2)}. Amount Invested: ₹${invested.toFixed(2)}. Gain: ₹${gain.toFixed(2)} (${gainPercentage.toFixed(2)}%).`;
+      document.getElementById('rdSummaryBox').style.display = 'block';
+    }
+
+    function calculateFD() {
+      const fdInterest = parseFloat(document.getElementById('fdInterest').value);
+      const fdAmount = parseFloat(document.getElementById('fdAmount').value);
+      const fdMonths = parseInt(document.getElementById('fdMonths').value);
+
+      if (isNaN(fdInterest) || isNaN(fdAmount) || isNaN(fdMonths)) {
+        alert('Please enter valid numbers for FD details.');
+        return;
+      }
+
+      const ratePerMonth = fdInterest / 12 / 100;
+      const total = fdAmount * Math.pow(1 + ratePerMonth, fdMonths);
+      const invested = fdAmount * (fdMonths / 12);
+      const gain = total - invested;
+      const gainPercentage = (gain / invested) * 100;
+
+      document.getElementById('fdSummaryText').textContent = `Total FD Amount after ${fdMonths} months is: ₹${total.toFixed(2)}. Amount Invested: ₹${invested.toFixed(2)}. Gain: ₹${gain.toFixed(2)} (${gainPercentage.toFixed(2)}%).`;
+      document.getElementById('fdSummaryBox').style.display = 'block';
+    }
+
+    function calculateRDToFD() {
+      const rdInterest = parseFloat(document.getElementById('rdInterest').value);
+      const rdAmount = parseFloat(document.getElementById('rdAmount').value);
+      const rdMonths = parseInt(document.getElementById('rdMonths').value);
+      const fdInterest = parseFloat(document.getElementById('fdInterest').value);
+      const investmentYears = parseInt(document.getElementById('investmentYears').value);
+
+      if (isNaN(rdInterest) || isNaN(rdAmount) || isNaN(rdMonths) || isNaN(fdInterest) || isNaN(investmentYears)) {
+        alert('Please enter valid numbers for all fields.');
+        return;
+      }
+
+      const ratePerMonthRD = rdInterest / 12 / 100;
+      const ratePerMonthFD = fdInterest / 12 / 100;
+
+      let rdTotal = rdAmount * ((Math.pow(1 + ratePerMonthRD, rdMonths) - 1) / ratePerMonthRD) * (1 + ratePerMonthRD);
+      let invested = rdAmount * rdMonths;
+      let finalAmount = rdTotal;
+
+      for (let i = 0; i < investmentYears; i++) {
+        finalAmount = finalAmount * Math.pow(1 + ratePerMonthFD, 12);
+        rdTotal = rdAmount * ((Math.pow(1 + ratePerMonthRD, rdMonths) - 1) / ratePerMonthRD) * (1 + ratePerMonthRD);
+        invested += rdAmount * rdMonths;
+        finalAmount += rdTotal;
+      }
+
+      const gain = finalAmount - invested;
+      const gainPercentage = (gain / invested) * 100;
+
+      document.getElementById('combinedSummaryText').textContent = `Final amount after ${investmentYears} years is: ₹${finalAmount.toFixed(2)}. Total Amount Invested: ₹${invested.toFixed(2)}. Gain: ₹${gain.toFixed(2)} (${gainPercentage.toFixed(2)}%).`;
+      document.getElementById('combinedSummaryBox').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
