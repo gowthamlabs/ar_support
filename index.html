@@ -114,6 +114,7 @@
             <th>RD Maturity (₹)</th>
             <th>FD Maturity (₹)</th>
             <th>Annual Total (₹)</th>
+            <th>Percentage Increase (%)</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -151,18 +152,20 @@
         rdContainer.appendChild(rdLabel);
         rdContainer.appendChild(rdInput);
 
-        // FD Inputs
-        const fdLabel = document.createElement('label');
-        fdLabel.textContent = `Year ${i} FD Amount (Auto):`;
+        // FD Inputs for Year 2 and onward
+        if (i > 1) {
+          const fdLabel = document.createElement('label');
+          fdLabel.textContent = `Year ${i} FD Amount (Auto):`;
 
-        const fdInput = document.createElement('input');
-        fdInput.type = 'text';
-        fdInput.id = `fdAmountYear${i}`;
-        fdInput.placeholder = `FD amount for Year ${i}`;
-        fdInput.readOnly = true;
+          const fdInput = document.createElement('input');
+          fdInput.type = 'text';
+          fdInput.id = `fdAmountYear${i}`;
+          fdInput.placeholder = `FD amount for Year ${i}`;
+          fdInput.readOnly = true;
 
-        fdContainer.appendChild(fdLabel);
-        fdContainer.appendChild(fdInput);
+          fdContainer.appendChild(fdLabel);
+          fdContainer.appendChild(fdInput);
+        }
       }
     }
 
@@ -178,6 +181,7 @@
 
       let totalInvested = 0;
       let cumulativeFD = 0;
+      let previousAnnualTotal = 0;
       const tableBody = document.querySelector('#summaryTable tbody');
       tableBody.innerHTML = '';
 
@@ -205,7 +209,18 @@
         }
 
         // Update cumulative FD for next year
-        cumulativeFD = rdTotal + fdMaturity;
+        cumulativeFD = year === 1 ? rdTotal : rdTotal + fdMaturity;
+
+        // Annual Total and Percentage Increase
+        const annualTotal = rdTotal + fdMaturity;
+        const percentageIncrease = year === 1 ? 0 : ((annualTotal - previousAnnualTotal) / previousAnnualTotal) * 100;
+        previousAnnualTotal = annualTotal;
+
+        // Populate FD Amount for Next Year
+        if (year < investmentYears) {
+          const fdInput = document.getElementById(`fdAmountYear${year + 1}`);
+          if (fdInput) fdInput.value = cumulativeFD.toFixed(2);
+        }
 
         // Append to the summary table
         const row = document.createElement('tr');
@@ -213,7 +228,8 @@
           <td>${year}</td>
           <td>${rdTotal.toFixed(2)}</td>
           <td>${fdMaturity.toFixed(2)}</td>
-          <td>${(rdTotal + fdMaturity).toFixed(2)}</td>
+          <td>${annualTotal.toFixed(2)}</td>
+          <td>${percentageIncrease.toFixed(2)}%</td>
         `;
         tableBody.appendChild(row);
       }
@@ -223,7 +239,8 @@
       summaryBox.style.display = 'block';
 
       const finalSummaryText = document.getElementById('finalSummaryText');
-      finalSummaryText.textContent = `Total Investment: ₹${totalInvested.toFixed(2)}, Final Amount after ${investmentYears} years: ₹${cumulativeFD.toFixed(2)}`;
+      const overallIncrease = ((cumulativeFD - totalInvested) / totalInvested) * 100;
+      finalSummaryText.textContent = `Total Investment: ₹${totalInvested.toFixed(2)}, Final Amount after ${investmentYears} years: ₹${cumulativeFD.toFixed(2)} (Overall Percentage Increase: ${overallIncrease.toFixed(2)}%).`;
     }
   </script>
 </body>
