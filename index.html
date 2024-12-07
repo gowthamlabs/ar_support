@@ -61,6 +61,22 @@
     .dynamic-inputs {
       margin-top: 20px;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      text-align: center;
+      padding: 8px;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -90,7 +106,19 @@
     <button onclick="calculateRDToFD()">Calculate Final Sum</button>
 
     <div class="summary" id="combinedSummaryBox" style="display: none;">
-      <p id="combinedSummaryText"></p>
+      <h3>Yearly Breakdown</h3>
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>RD Maturity (₹)</th>
+            <th>FD Maturity (₹)</th>
+            <th>Annual Total (₹)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <h3 id="finalSummaryText"></h3>
     </div>
   </div>
 
@@ -169,13 +197,16 @@
 
       let totalInvested = 0;
       let finalAmount = 0;
+      let cumulativeFD = 0;
+
+      const tableBody = document.querySelector('#summaryTable tbody');
+      tableBody.innerHTML = '';
 
       for (let year = 1; year <= investmentYears; year++) {
         const rdAmount = parseFloat(document.getElementById(`rdAmountYear${year}`)?.value);
-        const fdAmount = parseFloat(document.getElementById(`fdAmountYear${year}`)?.value);
 
-        if (isNaN(rdAmount) || isNaN(fdAmount)) {
-          alert(`Please enter valid RD and FD amounts for Year ${year}.`);
+        if (isNaN(rdAmount)) {
+          alert(`Please enter valid RD amount for Year ${year}.`);
           return;
         }
 
@@ -183,23 +214,35 @@
         const t = 1; // One year tenure
         const rd_r = rdInterest / 100;
 
-        // RD calculation for the year
+        // RD maturity for the year
         const rdTotal = rdAmount * ((Math.pow(1 + rd_r / n, n * t) - 1) / (1 - Math.pow(1 + rd_r / n, -1)));
         totalInvested += rdAmount * 12;
 
-        // Add RD maturity to FD
-        const combinedFD = rdTotal + fdAmount;
+        // FD maturity calculation
+        const combinedFD = rdTotal + cumulativeFD;
         const fd_r = fdInterest / 100;
+        const fdMaturity = combinedFD * Math.pow(1 + fd_r / n, n * t);
 
-        // FD maturity for 1 year
-        finalAmount += combinedFD * Math.pow(1 + fd_r / n, n * t);
+        // Update cumulative FD for next year
+        cumulativeFD = fdMaturity;
+
+        // Append to the summary table
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${year}</td>
+          <td>${rdTotal.toFixed(2)}</td>
+          <td>${fdMaturity.toFixed(2)}</td>
+          <td>${(rdTotal + fdMaturity).toFixed(2)}</td>
+        `;
+        tableBody.appendChild(row);
       }
 
-      const gain = finalAmount - totalInvested;
-      const gainPercentage = (gain / totalInvested) * 100;
+      // Display the summary box
+      const summaryBox = document.getElementById('combinedSummaryBox');
+      summaryBox.style.display = 'block';
 
-      document.getElementById('combinedSummaryText').textContent = `Final amount after ${investmentYears} years is: ₹${finalAmount.toFixed(2)}. Total Amount Invested: ₹${totalInvested.toFixed(2)}. Gain: ₹${gain.toFixed(2)} (${gainPercentage.toFixed(2)}%).`;
-      document.getElementById('combinedSummaryBox').style.display = 'block';
+      const finalSummaryText = document.getElementById('finalSummaryText');
+      finalSummaryText.textContent = `Total Investment: ₹${totalInvested.toFixed(2)}, Final Amount after ${investmentYears} years: ₹${cumulativeFD.toFixed(2)}`;
     }
   </script>
 </body>
