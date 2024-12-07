@@ -74,7 +74,7 @@
     <label for="rdMonths">RD Duration (in months)</label>
     <input type="text" id="rdMonths" placeholder="Enter RD duration in months">
 
-    <button onclick="generateRDInputs()">Set RD Amounts per Year</button>
+    <button onclick="generateRDInputs()">Set RD and FD Amounts per Year</button>
 
     <div id="rdInputsContainer" class="dynamic-inputs"></div>
 
@@ -84,6 +84,8 @@
 
     <label for="investmentYears">Investment Period (in years)</label>
     <input type="text" id="investmentYears" placeholder="Enter investment period in years">
+
+    <div id="fdInputsContainer" class="dynamic-inputs"></div>
 
     <button onclick="calculateRDToFD()">Calculate Final Sum</button>
 
@@ -102,20 +104,35 @@
       }
 
       const years = rdMonths / 12;
-      const container = document.getElementById('rdInputsContainer');
-      container.innerHTML = '<h3>Enter RD Amounts for Each Year</h3>';
+      const rdContainer = document.getElementById('rdInputsContainer');
+      const fdContainer = document.getElementById('fdInputsContainer');
+      rdContainer.innerHTML = '<h3>Enter RD Amounts for Each Year</h3>';
+      fdContainer.innerHTML = '<h3>Enter FD Amounts for Each Year</h3>';
 
       for (let i = 1; i <= years; i++) {
-        const label = document.createElement('label');
-        label.textContent = `Year ${i} RD Amount:`;
+        // RD Inputs
+        const rdLabel = document.createElement('label');
+        rdLabel.textContent = `Year ${i} RD Amount:`;
 
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.id = `rdAmountYear${i}`;
-        input.placeholder = `Enter RD amount for Year ${i}`;
+        const rdInput = document.createElement('input');
+        rdInput.type = 'text';
+        rdInput.id = `rdAmountYear${i}`;
+        rdInput.placeholder = `Enter RD amount for Year ${i}`;
 
-        container.appendChild(label);
-        container.appendChild(input);
+        rdContainer.appendChild(rdLabel);
+        rdContainer.appendChild(rdInput);
+
+        // FD Inputs
+        const fdLabel = document.createElement('label');
+        fdLabel.textContent = `Year ${i} FD Amount:`;
+
+        const fdInput = document.createElement('input');
+        fdInput.type = 'text';
+        fdInput.id = `fdAmountYear${i}`;
+        fdInput.placeholder = `Enter FD amount for Year ${i}`;
+
+        fdContainer.appendChild(fdLabel);
+        fdContainer.appendChild(fdInput);
       }
     }
 
@@ -134,9 +151,10 @@
 
       for (let year = 1; year <= investmentYears; year++) {
         const rdAmount = parseFloat(document.getElementById(`rdAmountYear${year}`)?.value);
+        const fdAmount = parseFloat(document.getElementById(`fdAmountYear${year}`)?.value);
 
-        if (isNaN(rdAmount)) {
-          alert(`Please enter a valid RD amount for Year ${year}.`);
+        if (isNaN(rdAmount) || isNaN(fdAmount)) {
+          alert(`Please enter valid RD and FD amounts for Year ${year}.`);
           return;
         }
 
@@ -149,11 +167,11 @@
         totalInvested += rdAmount * 12;
 
         // Add RD maturity to FD
-        finalAmount += rdTotal;
+        const combinedFD = rdTotal + fdAmount;
         const fd_r = fdInterest / 100;
 
         // FD maturity for 1 year
-        finalAmount = finalAmount * Math.pow(1 + fd_r / n, n * t);
+        finalAmount += combinedFD * Math.pow(1 + fd_r / n, n * t);
       }
 
       const gain = finalAmount - totalInvested;
