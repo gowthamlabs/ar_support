@@ -68,6 +68,25 @@
     .btn-next {
       right: 20px;
     }
+	  
+   /* Default style for larger screens */
+  .responsive-model {
+    transform: scale(1.5) translateY(20px);
+  }
+
+  /* Media query for phones (screen width less than 768px) */
+  @media (max-width: 768px) {
+    .responsive-model {
+      transform: scale(1) translateY(10px); /* Smaller size and slightly adjusted position */
+    }
+  }
+
+  /* Media query for very small phones (screen width less than 480px) */
+  @media (max-width: 480px) {
+    .responsive-model {
+      transform: scale(0.8) translateY(5px); /* Even smaller size */
+    }
+  }
   </style>
 </head>
 <body>
@@ -85,7 +104,7 @@
         shadow-intensity="1"
         autoplay
         ar
-	style="transform: scale(1.5);"
+	class="responsive-model"
       ></model-viewer>
     </div>
 
@@ -99,7 +118,7 @@
         shadow-intensity="1"
         autoplay
         ar
-	style="transform: scale(1.5)"
+	class="responsive-model"
       ></model-viewer>
     </div>
 
@@ -113,7 +132,7 @@
         shadow-intensity="1"
         autoplay
         ar
-	style="transform: scale(1.5) translateY(40px);;"
+	class="responsive-model"
       ></model-viewer>
     </div>
   </div>
