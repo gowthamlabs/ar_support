@@ -3,161 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Model Viewer Carousel</title>
+  <title>Interactive Alphabet Learning</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    /* General styling */
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #ffffff; /* White background */
-      color: #000; /* Black text for contrast */
+      text-align: center;
+      background-color: #f9f9f9;
+      color: #333;
+      padding: 20px;
     }
 
-    .carousel-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .carousel {
-      display: flex;
-      transition: transform 0.5s ease-in-out;
+    model-viewer {
       width: 100%;
+      height: 400px;
+      background-color: #fff;
     }
 
-    .carousel-item {
-      min-width: 100%;
-      flex-shrink: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    h1 {
+      margin-top: 20px;
+      font-size: 2em;
     }
 
-    .carousel-item model-viewer {
-      width: 80%;
-      height: 60vh;
-    }
-
-    /* Navigation buttons */
-    .carousel-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: rgba(0, 0, 0, 0.5);
-      color: #fff;
-      border: none;
+    button {
       padding: 10px 20px;
-      cursor: pointer;
-      font-size: 1.2rem;
-      z-index: 1000;
+      font-size: 1em;
+      margin: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
       border-radius: 5px;
+      cursor: pointer;
     }
 
-    .carousel-btn:hover {
-      background-color: rgba(0, 0, 0, 0.7);
+    button:hover {
+      background-color: #45a049;
     }
 
-    .btn-prev {
-      left: 20px;
+    .feedback {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #007BFF;
     }
 
-    .btn-next {
-      right: 20px;
+    .congrats {
+      font-size: 1.5em;
+      color: #28a745;
+      font-weight: bold;
     }
-	  
-   /* Default style for larger screens */
-  .responsive-model {
-    transform: scale(1.5) translateY(20px);
-  }
-
-  /* Media query for phones (screen width less than 768px) */
-  @media (max-width: 768px) {
-    .responsive-model {
-      transform: scale(1) translateY(10px); /* Smaller size and slightly adjusted position */
-    }
-  }
-
-  /* Media query for very small phones (screen width less than 480px) */
-  @media (max-width: 480px) {
-    .responsive-model {
-      width: 120%;
-      transform: scale(1); /* Even smaller size */
-    }
-  }
   </style>
 </head>
 <body>
+  <h1>Learn the Alphabet</h1>
+  <model-viewer
+    id="alphabetModel"
+    src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/raichu.glb"
+    auto-rotate
+    camera-controls
+    ar
+    shadow-intensity="1">
+  </model-viewer>
+  <h2 id="displayText">A is for Apple</h2>
+  <button onclick="nextLetter()">Next Letter</button>
+  <button onclick="startListening()">Say the Letter</button>
 
-<div class="carousel-container">
-  <button class="carousel-btn btn-prev" onclick="prevSlide()">&#10094;</button>
-  <div class="carousel">
-    <!-- Carousel item 1 -->
-    <div class="carousel-item">
-      <model-viewer
-	src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/concept_car_2.glb"
-        ios-src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/concept_car_2.usdz"
-        auto-rotate
-        camera-controls
-        shadow-intensity="1"
-        autoplay
-        ar
-	class="responsive-model"
-      ></model-viewer>
-    </div>
+  <div class="feedback" id="feedback"></div>
 
-    <!-- Carousel item 2 -->
-    <div class="carousel-item">
-      <model-viewer
-	src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/raichu.glb" 
-        ios-src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/raichu.usdz"
-        camera-controls
-        shadow-intensity="1"
-        autoplay
-        ar
-	class="responsive-model"
-      ></model-viewer>
-    </div>
+  <script>
+    let currentLetterIndex = 0;
+    const letters = [
+      { letter: "A", word: "Apple", model: "https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/raichu.glb" },
+      { letter: "B", word: "Ball", model: "https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/raichu.glb" },
+      { letter: "C", word: "Cat", model: "https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/raichu.glb" }
+    ];
 
-    <!-- Carousel item 3 -->
-    <div class="carousel-item">
-      <model-viewer
-        src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/flying_dino.glb"
-        ios-src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/flying_dino.usdz"
-        auto-rotate
-        camera-controls
-        shadow-intensity="1"
-        autoplay
-        ar
-	class="responsive-model"
-      ></model-viewer>
-    </div>
-  </div>
-  <button class="carousel-btn btn-next" onclick="nextSlide()">&#10095;</button>
-</div>
+    // Update model and display text for the next letter
+    function nextLetter() {
+      currentLetterIndex = (currentLetterIndex + 1) % letters.length;
+      const modelViewer = document.getElementById("alphabetModel");
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = ""; // Clear feedback message
+      modelViewer.src = letters[currentLetterIndex].model;
+      document.getElementById("displayText").innerText = `${letters[currentLetterIndex].letter} is for ${letters[currentLetterIndex].word}`;
+    }
 
-<script>
-  const carousel = document.querySelector('.carousel');
-  const items = document.querySelectorAll('.carousel-item');
-  let currentIndex = 0;
+    // Start speech recognition
+    function startListening() {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = "Listening... Please say the letter.";
 
-  function updateCarousel() {
-    const offset = currentIndex * -100;
-    carousel.style.transform = `translateX(${offset}%)`;
-  }
+      if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        feedback.textContent = "Speech recognition is not supported in this browser.";
+        return;
+      }
 
-  function nextSlide() {
-    currentIndex = (currentIndex + 1) % items.length; // Wrap around to the first item
-    updateCarousel();
-  }
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
 
-  function prevSlide() {
-    currentIndex = (currentIndex - 1 + items.length) % items.length; // Wrap around to the last item
-    updateCarousel();
-  }
+      recognition.start();
+
+      // Clear the "Listening..." message when recognition ends
+      recognition.onend = () => {
+        if (feedback.textContent === "Listening... Please say the letter.") {
+          feedback.textContent = ""; // Clear feedback message after recognition ends
+        }
+      };
+
+      // Handle recognition results
+      recognition.onresult = (event) => {
+        const spokenText = event.results[0][0].transcript.toLowerCase();
+        const expectedLetter = letters[currentLetterIndex].letter.toLowerCase();
+	console.log('spokenText : '+ spokenText);
+	console.log('expectedLetter : '+ expectedLetter);
+        if (spokenText === expectedLetter) {
+          feedback.innerHTML = `<span class="congrats">Congrats! You said "${spokenText}" correctly!</span>`;
+        } else {
+          feedback.textContent = `Oops! You said "${spokenText}". Try again!`;
+        }
+      };
+
+      // Handle errors
+      recognition.onerror = (event) => {
+        feedback.textContent = `Error: ${event.error}. Please try again.`;
+      };
+    }
 </script>
 
 </body>
