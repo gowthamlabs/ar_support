@@ -17,20 +17,15 @@
 
     model-viewer {
       width: 100%;
-      height: 100vh;
+      height: 400px;
       background-color: #fff;
     }
 
-    #ar-ui {
-      display: none;
-      position: absolute;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
+    #ui-container {
+      margin-top: 10px;
     }
 
-    #ar-ui button {
+    #ui-container button {
       padding: 10px 20px;
       font-size: 1em;
       margin: 10px;
@@ -41,17 +36,17 @@
       cursor: pointer;
     }
 
-    #ar-ui button:hover {
+    #ui-container button:hover {
       background-color: #45a049;
     }
 
-    #ar-ui .feedback {
+    #ui-container .feedback {
       margin-top: 20px;
       font-size: 1.2em;
       color: #007BFF;
     }
 
-    #ar-ui .congrats {
+    #ui-container .congrats {
       font-size: 1.5em;
       color: #28a745;
       font-weight: bold;
@@ -59,6 +54,7 @@
   </style>
 </head>
 <body>
+  <h1>Learn the Alphabet</h1>
   <model-viewer
     id="alphabetModel"
     src="https://cdn.jsdelivr.net/gh/gowthamlabs/webxr_ar@webgl_3D_models/raichu.glb"
@@ -69,8 +65,8 @@
     ar-modes="scene-viewer webxr quick-look">
   </model-viewer>
 
-  <!-- AR UI Elements -->
-  <div id="ar-ui">
+  <!-- UI for both AR and non-AR modes -->
+  <div id="ui-container">
     <h2 id="displayText">A is for Apple</h2>
     <button onclick="nextLetter()">Next Letter</button>
     <button onclick="startListening()">Say the Letter</button>
@@ -86,25 +82,17 @@
     ];
 
     const modelViewer = document.getElementById("alphabetModel");
-    const arUI = document.getElementById("ar-ui");
     const feedback = document.getElementById("feedback");
 
-    // Show AR-specific UI when entering AR mode
-    modelViewer.addEventListener('ar-status', (event) => {
-      if (modelViewer.arStatus === 'session-started') {
-        arUI.style.display = 'block';
-      } else if (modelViewer.arStatus === 'session-ended') {
-        arUI.style.display = 'none';
-      }
-    });
-
+    // Update the model and text for the next letter
     function nextLetter() {
       currentLetterIndex = (currentLetterIndex + 1) % letters.length;
-      feedback.textContent = ""; // Clear feedback message
+      feedback.textContent = ""; // Clear feedback
       modelViewer.src = letters[currentLetterIndex].model;
       document.getElementById("displayText").innerText = `${letters[currentLetterIndex].letter} is for ${letters[currentLetterIndex].word}`;
     }
 
+    // Start speech recognition
     function startListening() {
       feedback.textContent = "Listening... Please say the letter.";
 
@@ -133,7 +121,7 @@
 
       recognition.onend = () => {
         if (feedback.textContent === "Listening... Please say the letter.") {
-          feedback.textContent = ""; // Clear feedback message after recognition ends
+          feedback.textContent = ""; // Clear feedback
         }
       };
 
@@ -141,6 +129,16 @@
         feedback.textContent = `Error: ${event.error}. Please try again.`;
       };
     }
+
+    // Detect AR session start and end to manage UI
+    modelViewer.addEventListener('ar-status', () => {
+      if (modelViewer.arStatus === 'session-started') {
+        console.log('AR session started.');
+        // The UI remains functional in both modes
+      } else if (modelViewer.arStatus === 'session-ended') {
+        console.log('AR session ended.');
+      }
+    });
   </script>
 </body>
 </html>
